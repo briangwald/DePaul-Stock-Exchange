@@ -27,7 +27,7 @@ public class PriceFactory
 		
 		double doubleValue = Double.parseDouble(value);
 		
-		long longValue = (long)(doubleValue * 100);
+		long longValue = Math.round(doubleValue * 100);
 		
 		return makeLimitPrice(longValue);
 	}

@@ -1,6 +1,7 @@
 package trading;
 
 import prices.Price;
+import exceptions.InvalidParameterException;
 
 
 public interface Tradable 
@@ -15,10 +16,10 @@ public interface Tradable
 	
 	public int getCancelledVolume();
 	
-	public void setCancelledVolume(int newCancelledVolume) throws InvalidCancelledVolume;
+	public void setCancelledVolume(int newCancelledVolume) throws InvalidParameterException;
 	
-	public void setRemainingVolume(int newRemainingVolume) throws InvalidRemainingVolume;
-	
+	public void setRemainingVolume(int newRemainingVolume) throws InvalidParameterException;
+			
 	public String getUser();
 	
 	public String getSide();

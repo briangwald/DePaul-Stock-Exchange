@@ -1,5 +1,6 @@
 package trading;
 
+import exceptions.InvalidParameterException;
 import prices.Price;
 
 
@@ -21,32 +22,28 @@ public class QuoteSide implements Tradable
 	
 	private int cancelledVolume;
 	
-	public QuoteSide(String userName, String productSymbol, Price sidePrice, int originalVolume, String side) throws InvalidOrderVolume
+	public QuoteSide(String userName, String productSymbol, Price sidePrice, int originalVolume, String side) 
+			throws InvalidParameterException
 	{
-		if (originalVolume <= 0)
-		{
-			throw new InvalidOrderVolume(originalVolume);
-		}
-		
-		this.userName = userName;
-		this.productSymbol = productSymbol;
-		this.sidePrice = sidePrice;
-		this.originalVolume = originalVolume;
-		this.remainingVolume = originalVolume;
-		this.side = side;
-		this.id = userName + productSymbol + System.nanoTime();
+		this.setUserName(userName);
+		this.setProductSymbol(productSymbol);
+		this.setPrice(sidePrice);
+		this.setOriginalVolume(originalVolume);
+		this.setRemainingVolume(originalVolume);
+		this.setSide(side);
+		this.setId(userName + productSymbol + System.nanoTime());
 	}
 	
-	public QuoteSide(QuoteSide qs)
+	public QuoteSide(QuoteSide qs) throws InvalidParameterException
 	{
-		this.userName = qs.userName;
-		this.productSymbol = qs.productSymbol;
-		this.sidePrice = qs.sidePrice;
-		this.originalVolume = qs.originalVolume;
-		this.remainingVolume = qs.remainingVolume;
-		this.cancelledVolume = qs.cancelledVolume;
-		this.side = qs.side;
-		this.id = userName + productSymbol + System.nanoTime();
+		this.setUserName(qs.userName);
+		this.setProductSymbol(qs.productSymbol);
+		this.setPrice(qs.sidePrice);
+		this.setOriginalVolume(qs.originalVolume);
+		this.setRemainingVolume(qs.remainingVolume);
+		this.setCancelledVolume(qs.cancelledVolume);
+		this.setSide(qs.side);
+		this.setId(userName + productSymbol + System.nanoTime());
 	}
 	
 	@Override
@@ -80,25 +77,90 @@ public class QuoteSide implements Tradable
 	}
 
 	@Override
-	public void setCancelledVolume(int newCancelledVolume) throws InvalidCancelledVolume
+	public void setCancelledVolume(int newCancelledVolume) throws InvalidParameterException
 	{
 		if (newCancelledVolume > this.cancelledVolume || newCancelledVolume < 0)
 		{
-			throw new InvalidCancelledVolume(newCancelledVolume, this.remainingVolume, this.originalVolume);
+			throw new InvalidParameterException(String.format("Requested new Cancelled Volume (%d) plus the Remaining Volume (%d) "
+					+ "exceeds the tradable's Original Volume (%d)", newCancelledVolume, remainingVolume, originalVolume));
 		}
 		
 		this.cancelledVolume = newCancelledVolume;
 	}
 
 	@Override
-	public void setRemainingVolume(int newRemainingVolume) throws InvalidRemainingVolume 
+	public void setRemainingVolume(int newRemainingVolume) throws InvalidParameterException 
 	{
 		if (newRemainingVolume > this.originalVolume || newRemainingVolume < 0)
 		{
-			throw new InvalidRemainingVolume(newRemainingVolume, this.cancelledVolume, this.originalVolume);
+			throw new InvalidParameterException(String.format("Requested new Remaining Volume (%d) plus the Cancelled Volume (%d) "
+					+ "exceeds the tradable's Original Volume (%d)", newRemainingVolume, cancelledVolume, originalVolume));
 		}
 		
 		this.remainingVolume = newRemainingVolume;
+	}
+	
+	private void setOriginalVolume(int originalVolume) throws InvalidParameterException
+	{
+		if (originalVolume <= 0)
+		{
+			throw new InvalidParameterException(String.format("Invalid Order Volume: %d", originalVolume));
+		}
+		
+		this.originalVolume = originalVolume;
+	}
+	
+	private void setUserName(String userName) throws InvalidParameterException
+	{
+		if (userName == null || userName == "")
+		{
+			throw new InvalidParameterException("User names cannot be empty or null");
+		}
+
+		this.userName = userName.toUpperCase().trim();
+		
+	}
+	
+	private void setProductSymbol(String productSymbol) throws InvalidParameterException
+	{
+		if (productSymbol == null || productSymbol == "")
+		{
+			throw new InvalidParameterException("Product symbols cannot be empty or null");
+		}
+
+		this.productSymbol = productSymbol.toUpperCase().trim();
+	}
+	
+	private void setSide(String side) throws InvalidParameterException
+	{
+		side = side.toUpperCase().trim();
+		
+		if (side == null || side == "" || (side != "BUY" && side != "SELL"))
+		{
+			throw new InvalidParameterException("Side must be \"BUY\" or \"SELL\"");
+		}
+		
+		this.side = side;
+	}
+	
+	private void setPrice(Price price) throws InvalidParameterException
+	{
+		if (price.isMarket())
+		{
+			throw new InvalidParameterException("Quotes may only use Limit Prices");
+		}
+		
+		this.sidePrice = price;
+	}
+	
+	private void setId(String id) throws InvalidParameterException
+	{
+		if (id == null)
+		{
+			throw new InvalidParameterException("Id cannot be null");
+		}
+		
+		this.id = id;
 	}
 
 	@Override

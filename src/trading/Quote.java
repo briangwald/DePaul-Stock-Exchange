@@ -1,4 +1,5 @@
 package trading;
+import exceptions.InvalidParameterException;
 import prices.Price;
 
 
@@ -12,7 +13,8 @@ public class Quote
 	
 	private QuoteSide sellSide;
 	
-	public Quote(String userName, String productSymbol, Price buyPrice, int buyVolume, Price sellPrice, int sellVolume) throws InvalidOrderVolume
+	public Quote(String userName, String productSymbol, Price buyPrice, int buyVolume, Price sellPrice, int sellVolume) 
+			throws InvalidParameterException
 	{
 		this.userName = userName;
 		this.productSymbol = productSymbol;
@@ -32,16 +34,16 @@ public class Quote
 		return productSymbol;
 	}
 	
-	public QuoteSide getQuoteSide(String sideIn)
+	public QuoteSide getQuoteSide(String sideIn) throws InvalidParameterException
 	{
 		sideIn = sideIn.toUpperCase().trim();
 		
 		if (sideIn.equals("BUY"))
 		{
-			return buySide;
+			return new QuoteSide(buySide);
 		}
 		
-		return sellSide;
+		return new QuoteSide(sellSide);
 	}
 	
 	public String toString()

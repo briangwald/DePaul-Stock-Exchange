@@ -2,6 +2,8 @@ package prices;
 
 import java.text.DecimalFormat;
 
+import exceptions.InvalidPriceOperation;
+
 
 public class Price implements Comparable<Price>
 {
@@ -140,12 +142,12 @@ public class Price implements Comparable<Price>
 	
 	public String toString()
 	{
-		if (this.isMarket())
+		if (isMarket())
 		{
 			return "MKT";
 		}
 		
-		double doubleValue = (double)this.value;
+		double doubleValue = (double)value;
 		
 		doubleValue /= 100.00;
 		
